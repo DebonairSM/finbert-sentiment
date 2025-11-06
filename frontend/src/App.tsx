@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import SentimentPage from './pages/SentimentPage';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/sentiment" element={<SentimentPage />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </Layout>
   );

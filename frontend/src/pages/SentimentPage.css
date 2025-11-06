@@ -46,6 +46,23 @@
   color: #1a1a2e;
 }
 
+.summaries-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.summaries-header h2 {
+  margin-bottom: 0;
+}
+
+.global-last-updated {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+}
+
 .add-symbol-form {
   display: flex;
   gap: 1rem;
@@ -253,6 +270,45 @@
 .last-updated {
   font-size: 0.875rem;
   color: #666;
+}
+
+.newest-article {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.newest-article-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.newest-article-link {
+  color: #4a9eff;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  display: block;
+  text-decoration: none;
+}
+
+.newest-article-link:hover {
+  text-decoration: underline;
+}
+
+.newest-article-text {
+  color: #1a1a2e;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.newest-article-date {
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: 0.25rem;
 }
 
 .articles-table {

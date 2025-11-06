@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../.env' });
 
 export const config = {
-  port: process.env.PORT || 3031,
+  port: process.env.VITE_BACKEND_PORT || process.env.PORT || 3031,
   hfApiToken: process.env.HF_API_TOKEN,
   hfModel: process.env.HF_MODEL || 'ProsusAI/finbert',
   newsApiKey: process.env.NEWS_API_KEY,

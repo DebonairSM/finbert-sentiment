@@ -148,6 +148,14 @@ sentimentRouter.post('/refresh', async (req, res) => {
     if (error instanceof Error && error.message.includes('Missing required')) {
       return res.status(500).json({ error: error.message });
     }
+    
+    // Check for rate limit errors
+    if (error instanceof Error && error.message.includes('rate limit')) {
+      return res.status(429).json({ 
+        error: error.message,
+        code: 'RATE_LIMIT_EXCEEDED'
+      });
+    }
 
     res.status(500).json({ error: 'Failed to refresh sentiment data' });
   }

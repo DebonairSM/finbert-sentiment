@@ -2,7 +2,10 @@
 
 ## Prerequisites
 - Node.js 18+
-- Your `.env` file with API keys (already created)
+- Your `.env` file with API keys configured:
+  - `ALPHA_VANTAGE_API_KEY` (recommended - real-time news)
+  - OR `NEWS_API_KEY` (alternative - 24h delayed)
+  - `HF_API_TOKEN` (required for sentiment analysis)
 
 ## First Time Setup
 
@@ -45,6 +48,7 @@ Frontend will start on http://localhost:3000
    - Quick Add: Click "Quick Add Majors" to add all major forex pairs and cryptocurrencies at once
 4. Click "Refresh Sentiment" to fetch news and analyze
 5. Click on a summary card to view article details
+6. Visit "Settings" to view your news provider configuration and API status
 
 ### Quick Add Majors includes:
 - **Forex**: EURUSD, GBPUSD, USDJPY, USDCHF, AUDUSD, USDCAD, NZDUSD

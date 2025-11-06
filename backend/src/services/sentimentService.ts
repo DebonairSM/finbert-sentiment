@@ -3,16 +3,29 @@ import { watchlistSymbols, newsArticles, sentimentScores } from '../db/schema.js
 import { newsService } from './newsService.js';
 import { finbertClient } from './finbertClient.js';
 import type { SymbolSentimentSummary, SentimentLabel } from '../types.js';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, inArray } from 'drizzle-orm';
 
 export class SentimentService {
   async refreshSentiment(symbols: string[]): Promise<SymbolSentimentSummary[]> {
     const summaries: SymbolSentimentSummary[] = [];
 
+    // Get asset types for all symbols
+    const watchlistData = await db
+      .select()
+      .from(watchlistSymbols)
+      .where(inArray(watchlistSymbols.symbol, symbols));
+    
+    const assetTypeMap = new Map(
+      watchlistData.map(item => [item.symbol, item.assetType])
+    );
+
     for (const symbol of symbols) {
       try {
-        // Fetch news
-        const articles = await newsService.fetchNews(symbol);
+        // Get asset type for this symbol
+        const assetType = assetTypeMap.get(symbol) || null;
+        
+        // Fetch news with asset type for better search
+        const articles = await newsService.fetchNews(symbol, 20, assetType);
 
         // Insert articles and analyze sentiment
         for (const article of articles) {
@@ -59,7 +72,7 @@ export class SentimentService {
         const summary = await this.getSummaryForSymbol(symbol);
         summaries.push(summary);
       } catch (error) {
-        console.error(`Error refreshing sentiment for ${symbol}:`, error);
+        console.error(`Error refreshing sentiment for ${symbol}:`, error instanceof Error ? error.message : error);
         // Add empty summary for failed symbol
         summaries.push({
           symbol,

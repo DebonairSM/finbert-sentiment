@@ -182,11 +182,21 @@ function SentimentPage() {
 
       if (!response.ok) {
         const error = await response.json();
+        
+        // Special handling for rate limit errors
+        if (response.status === 429 || error.code === 'RATE_LIMIT_EXCEEDED') {
+          throw new Error(`Rate limit exceeded. ${error.error || 'Please try again later or switch to a different news provider in Settings.'}`);
+        }
+        
         throw new Error(error.error || 'Failed to refresh sentiment');
       }
 
       const data = await response.json();
       setSummaries(data);
+      
+      // Show success message
+      setError('Sentiment data refreshed successfully!');
+      setTimeout(() => setError(null), 3000);
     } catch (err) {
       console.error('Error refreshing sentiment:', err);
       setError(err instanceof Error ? err.message : 'Failed to refresh sentiment');
@@ -232,6 +242,15 @@ function SentimentPage() {
   };
 
   const selectedSummary = summaries.find((s) => s.symbol === selectedSymbol);
+
+  const getNewestArticle = (summary: SymbolSummary) => {
+    if (summary.articles.length === 0) return null;
+    return [...summary.articles].sort((a, b) => {
+      const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+      const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+      return dateB - dateA;
+    })[0];
+  };
 
   return (
     <div className="sentiment-page">
@@ -315,7 +334,14 @@ function SentimentPage() {
       </section>
 
       <section className="summaries-section">
-        <h2>Sentiment Summaries</h2>
+        <div className="summaries-header">
+          <h2>Sentiment Summaries</h2>
+          {summaries.length > 0 && (
+            <span className="global-last-updated">
+              Last Updated: {new Date(summaries[0].lastUpdated).toLocaleString()}
+            </span>
+          )}
+        </div>
         {loading ? (
           <div className="loading">Loading summaries...</div>
         ) : summaries.length === 0 ? (
@@ -324,50 +350,71 @@ function SentimentPage() {
           </p>
         ) : (
           <div className="summary-cards">
-            {summaries.map((summary) => (
-              <div
-                key={summary.symbol}
-                className={`summary-card ${
-                  selectedSymbol === summary.symbol ? 'selected' : ''
-                }`}
-                onClick={() => setSelectedSymbol(summary.symbol)}
-              >
-                <div className="summary-header">
-                  <h3>{summary.symbol}</h3>
-                  <div
-                    className="sentiment-index"
-                    style={{ color: getSentimentColor(summary.sentimentIndex) }}
-                  >
-                    {summary.sentimentIndex.toFixed(2)}
+            {[...summaries].sort((a, b) => b.sentimentIndex - a.sentimentIndex).map((summary) => {
+              const newestArticle = getNewestArticle(summary);
+              return (
+                <div
+                  key={summary.symbol}
+                  className={`summary-card ${
+                    selectedSymbol === summary.symbol ? 'selected' : ''
+                  }`}
+                  onClick={() => setSelectedSymbol(summary.symbol)}
+                >
+                  <div className="summary-header">
+                    <h3>{summary.symbol}</h3>
+                    <div
+                      className="sentiment-index"
+                      style={{ color: getSentimentColor(summary.sentimentIndex) }}
+                    >
+                      {summary.sentimentIndex.toFixed(2)}
+                    </div>
                   </div>
+                  <div className="sentiment-counts">
+                    <div className="count-item">
+                      <span className="count-label" style={{ color: '#22c55e' }}>
+                        Positive
+                      </span>
+                      <span className="count-value">{summary.counts.positive}</span>
+                    </div>
+                    <div className="count-item">
+                      <span className="count-label" style={{ color: '#94a3b8' }}>
+                        Neutral
+                      </span>
+                      <span className="count-value">{summary.counts.neutral}</span>
+                    </div>
+                    <div className="count-item">
+                      <span className="count-label" style={{ color: '#ef4444' }}>
+                        Negative
+                      </span>
+                      <span className="count-value">{summary.counts.negative}</span>
+                    </div>
+                  </div>
+                  {newestArticle && (
+                    <div className="newest-article">
+                      <div className="newest-article-label">Latest Article:</div>
+                      {newestArticle.url ? (
+                        <a
+                          href={newestArticle.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="newest-article-link"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {newestArticle.headline}
+                        </a>
+                      ) : (
+                        <div className="newest-article-text">{newestArticle.headline}</div>
+                      )}
+                      {newestArticle.publishedAt && (
+                        <div className="newest-article-date">
+                          {new Date(newestArticle.publishedAt).toLocaleString()}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div className="sentiment-counts">
-                  <div className="count-item">
-                    <span className="count-label" style={{ color: '#22c55e' }}>
-                      Positive
-                    </span>
-                    <span className="count-value">{summary.counts.positive}</span>
-                  </div>
-                  <div className="count-item">
-                    <span className="count-label" style={{ color: '#94a3b8' }}>
-                      Neutral
-                    </span>
-                    <span className="count-value">{summary.counts.neutral}</span>
-                  </div>
-                  <div className="count-item">
-                    <span className="count-label" style={{ color: '#ef4444' }}>
-                      Negative
-                    </span>
-                    <span className="count-value">{summary.counts.negative}</span>
-                  </div>
-                </div>
-                <div className="summary-footer">
-                  <span className="last-updated">
-                    Updated: {new Date(summary.lastUpdated).toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>

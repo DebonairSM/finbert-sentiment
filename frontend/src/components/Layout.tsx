@@ -30,6 +30,13 @@ function Layout({ children }: LayoutProps) {
             <span className="nav-icon">📊</span>
             <span>Market Sentiment</span>
           </Link>
+          <Link
+            to="/settings"
+            className={`nav-item ${location.pathname === '/settings' ? 'active' : ''}`}
+          >
+            <span className="nav-icon">⚙️</span>
+            <span>Settings</span>
+          </Link>
         </nav>
       </aside>
       <main className="main-content">

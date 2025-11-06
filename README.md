@@ -5,10 +5,13 @@ A full-stack application that tracks market sentiment for stocks, forex, and cry
 ## Features
 
 - Watchlist management for market symbols
-- Automated news fetching from NewsAPI
+- Automated news fetching with configurable providers:
+  - Alpha Vantage (real-time financial news - recommended)
+  - NewsAPI (24h delayed, higher rate limit)
 - AI sentiment analysis using Hugging Face FinBERT model
 - Real-time sentiment tracking and visualization
 - Admin dashboard with React frontend
+- Quick add feature for major forex pairs and cryptocurrencies
 
 ## Tech Stack
 
@@ -48,9 +51,20 @@ npm install
 Create a `.env` file in the root directory:
 
 ```env
+# News Provider Configuration
+NEWS_PROVIDER=alphavantage   # Options: "alphavantage" (recommended) or "newsapi"
+
+# Alpha Vantage API Key (Recommended - Real-time news)
+ALPHA_VANTAGE_API_KEY=your_alpha_vantage_key
+
+# NewsAPI Key (Alternative - 24h delayed news)
+NEWS_API_KEY=your_newsapi_key
+
+# Hugging Face Configuration
 HF_API_TOKEN=your_huggingface_token
 HF_MODEL=ProsusAI/finbert
-NEWS_API_KEY=your_newsapi_key
+
+# Server Configuration
 PORT=3031                    # Backend server port
 VITE_BACKEND_PORT=3031       # Must match PORT for frontend proxy
 VITE_FRONTEND_PORT=3000      # Frontend dev server port (optional, defaults to 3000)
@@ -58,15 +72,31 @@ VITE_FRONTEND_PORT=3000      # Frontend dev server port (optional, defaults to 3
 
 #### Getting API Keys
 
+**Alpha Vantage API Key (RECOMMENDED):**
+1. Visit https://www.alphavantage.co/support/#api-key
+2. Enter your email to claim your free API key
+3. Free tier: 25 calls/day, real-time financial news for stocks/forex/crypto
+4. No delays - get the latest news immediately
+
+**NewsAPI Key (Alternative):**
+1. Sign up at https://newsapi.org
+2. Get your free API key from the dashboard
+3. Free tier: 100 calls/day, **24-hour delay**, last 30 days only
+4. Good for higher volume if you don't need real-time data
+
 **Hugging Face API Token:**
 1. Sign up at https://huggingface.co
 2. Go to Settings > Access Tokens
 3. Create a new token with read access
+4. Free tier: 1,000 calls/day
 
-**NewsAPI Key:**
-1. Sign up at https://newsapi.org
-2. Get your free API key from the dashboard
-3. Free tier: 100 requests/day
+#### Switching News Providers
+
+Change `NEWS_PROVIDER` in `.env`:
+- `alphavantage` - Real-time financial news (default)
+- `newsapi` - 24h delayed news, higher rate limit
+
+Restart the backend after changing.
 
 ### 3. Database Setup
 

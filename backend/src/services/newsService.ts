@@ -1,7 +1,7 @@
-import { config, validateConfig } from '../config.js';
+import { config, validateConfig } from '../config/index.js';
 import type { NormalizedArticle } from '../types.js';
 
-export class NewsService {
+export class NewsAPIService {
   private readonly apiKey: string;
   private readonly baseUrl = 'https://newsapi.org/v2';
 
@@ -10,9 +10,32 @@ export class NewsService {
     this.apiKey = config.newsApiKey!;
   }
 
-  async fetchNews(symbol: string, limit: number = 20): Promise<NormalizedArticle[]> {
+  async fetchNews(symbol: string, limit: number = 20, assetType?: string | null): Promise<NormalizedArticle[]> {
     const url = new URL(`${this.baseUrl}/everything`);
-    url.searchParams.set('q', symbol);
+    
+    // Adjust search term based on asset type for better results
+    let searchQuery = symbol;
+    if (assetType === 'forex') {
+      const base = symbol.substring(0, 3);
+      const quote = symbol.substring(3, 6);
+      searchQuery = `${base} ${quote} forex`;
+    } else if (assetType === 'crypto') {
+      const cryptoNames: Record<string, string> = {
+        'BTC': 'Bitcoin',
+        'ETH': 'Ethereum',
+        'USDT': 'Tether',
+        'BNB': 'Binance',
+        'XRP': 'Ripple',
+        'ADA': 'Cardano',
+        'DOGE': 'Dogecoin',
+        'SOL': 'Solana',
+        'DOT': 'Polkadot',
+        'MATIC': 'Polygon',
+      };
+      searchQuery = `${cryptoNames[symbol.toUpperCase()] || symbol} crypto`;
+    }
+    
+    url.searchParams.set('q', searchQuery);
     url.searchParams.set('language', 'en');
     url.searchParams.set('sortBy', 'publishedAt');
     url.searchParams.set('pageSize', String(limit));
@@ -42,4 +65,20 @@ export class NewsService {
   }
 }
 
-export const newsService = new NewsService();
+// Factory function to get the appropriate news service based on config
+function getNewsService() {
+  if (config.newsProvider === 'alphavantage') {
+    // Dynamic import to avoid circular dependencies
+    return import('./alphaVantageNewsService.js').then(m => m.alphaVantageNewsService);
+  } else {
+    return Promise.resolve(new NewsAPIService());
+  }
+}
+
+// Export a wrapper that delegates to the configured service
+export const newsService = {
+  async fetchNews(symbol: string, limit: number = 20, assetType?: string | null): Promise<NormalizedArticle[]> {
+    const service = await getNewsService();
+    return service.fetchNews(symbol, limit, assetType);
+  }
+};

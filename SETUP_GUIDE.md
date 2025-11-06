@@ -14,24 +14,37 @@ Based on the screenshot, the application shows:
 A `.env` file has been created in the root directory. You need to add your API keys:
 
 ```env
-# Get your Hugging Face token from: https://huggingface.co/settings/tokens
-HF_API_TOKEN=your_token_here
+# News Provider: "alphavantage" (recommended) or "newsapi"
+NEWS_PROVIDER=alphavantage
 
-# Get your NewsAPI key from: https://newsapi.org/
-NEWS_API_KEY=your_key_here
+# Alpha Vantage API Key (Recommended - Real-time news)
+ALPHA_VANTAGE_API_KEY=your_alpha_vantage_key_here
 
+# NewsAPI Key (Alternative - 24h delayed news)
+NEWS_API_KEY=your_newsapi_key_here
+
+# Hugging Face Token (Required for sentiment analysis)
+HF_API_TOKEN=your_huggingface_token_here
 HF_MODEL=ProsusAI/finbert
 PORT=3031
 ```
 
 ### 2. Get API Keys
 
-**NewsAPI Key (Required for articles):**
+**Alpha Vantage API Key (RECOMMENDED - Real-time news):**
+1. Go to https://www.alphavantage.co/support/#api-key
+2. Enter your email and claim your free API key
+3. Free tier: 25 API calls/day, **real-time** news for stocks/forex/crypto
+4. Copy your API key
+5. Add to `.env` as `ALPHA_VANTAGE_API_KEY`
+
+**NewsAPI Key (Alternative - 24h delayed news):**
 1. Go to https://newsapi.org/
 2. Click "Get API Key"
-3. Sign up (free tier: 100 requests/day)
+3. Sign up (free tier: 100 requests/day, **24-hour delay**, last 30 days only)
 4. Copy your API key
-5. Add to `.env` file
+5. Add to `.env` as `NEWS_API_KEY`
+6. Set `NEWS_PROVIDER=newsapi` to use this instead
 
 **Hugging Face Token (Required for sentiment analysis):**
 1. Go to https://huggingface.co/
@@ -39,7 +52,16 @@ PORT=3031
 3. Go to Settings → Access Tokens
 4. Create new token with "read" access
 5. Copy token
-6. Add to `.env` file
+6. Add to `.env` as `HF_API_TOKEN`
+
+### 2a. Switching News Providers
+
+You can easily switch between news providers by changing `NEWS_PROVIDER` in your `.env` file:
+
+- `NEWS_PROVIDER=alphavantage` - Real-time financial news (default, recommended)
+- `NEWS_PROVIDER=newsapi` - 24h delayed news, higher rate limit
+
+No code changes needed - just update the env var and restart the backend.
 
 ### 3. Test NewsAPI Connection
 
