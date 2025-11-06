@@ -40,9 +40,15 @@ Frontend will start on http://localhost:3000
 
 1. Open http://localhost:3000 in your browser
 2. Navigate to "Market Sentiment" from the sidebar
-3. Add symbols (e.g., AAPL, EURUSD, BTC)
+3. Add symbols:
+   - Manual: Enter symbol and type (e.g., AAPL, EURUSD, BTC)
+   - Quick Add: Click "Quick Add Majors" to add all major forex pairs and cryptocurrencies at once
 4. Click "Refresh Sentiment" to fetch news and analyze
 5. Click on a summary card to view article details
+
+### Quick Add Majors includes:
+- **Forex**: EURUSD, GBPUSD, USDJPY, USDCHF, AUDUSD, USDCAD, NZDUSD
+- **Crypto**: BTC, ETH, BNB, XRP, ADA, SOL, DOGE
 
 ## Troubleshooting
 
