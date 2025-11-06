@@ -92,8 +92,7 @@ export class SentimentService {
       })
       .from(newsArticles)
       .innerJoin(sentimentScores, eq(sentimentScores.articleId, newsArticles.id))
-      .where(eq(newsArticles.symbol, symbol))
-      .orderBy(sql`${newsArticles.publishedAt} DESC`);
+      .where(eq(newsArticles.symbol, symbol));
 
     // Calculate counts
     const counts = {
@@ -102,26 +101,28 @@ export class SentimentService {
       negative: 0,
     };
 
-    const articles = articlesWithSentiment.map((row) => {
-      const label = row.label as SentimentLabel;
-      counts[label]++;
+    const articles = articlesWithSentiment
+      .map((row) => {
+        const label = row.label as SentimentLabel;
+        counts[label]++;
 
-      const score = 
-        label === 'positive' ? row.scorePositive :
-        label === 'negative' ? row.scoreNegative :
-        row.scoreNeutral;
+        const score = 
+          label === 'positive' ? row.scorePositive :
+          label === 'negative' ? row.scoreNegative :
+          row.scoreNeutral;
 
-      return {
-        id: row.id,
-        symbol: row.symbol,
-        headline: row.headline,
-        source: row.source || undefined,
-        url: row.url || undefined,
-        publishedAt: row.publishedAt?.toISOString(),
-        label,
-        score,
-      };
-    });
+        return {
+          id: row.id,
+          symbol: row.symbol,
+          headline: row.headline,
+          source: row.source || undefined,
+          url: row.url || undefined,
+          publishedAt: row.publishedAt?.toISOString(),
+          label,
+          score,
+        };
+      })
+      .sort((a, b) => b.score - a.score);
 
     // Calculate sentiment index
     const totalCount = counts.positive + counts.neutral + counts.negative;

@@ -40,6 +40,8 @@ function SentimentPage() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'score' | 'date'>('score');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     loadWatchlist();
@@ -205,6 +207,30 @@ function SentimentPage() {
     return '#94a3b8';
   };
 
+  const handleSort = (column: 'score' | 'date') => {
+    if (sortBy === column) {
+      // Toggle sort order if same column
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new column and default to descending
+      setSortBy(column);
+      setSortOrder('desc');
+    }
+  };
+
+  const sortArticles = (articles: SentimentArticle[]) => {
+    return [...articles].sort((a, b) => {
+      if (sortBy === 'score') {
+        return sortOrder === 'desc' ? b.score - a.score : a.score - b.score;
+      } else {
+        // Sort by date
+        const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+        const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+      }
+    });
+  };
+
   const selectedSummary = summaries.find((s) => s.symbol === selectedSymbol);
 
   return (
@@ -358,13 +384,25 @@ function SentimentPage() {
                   <tr>
                     <th>Headline</th>
                     <th>Source</th>
-                    <th>Published</th>
+                    <th 
+                      onClick={() => handleSort('date')} 
+                      style={{ cursor: 'pointer', userSelect: 'none' }}
+                      title="Click to sort by date"
+                    >
+                      Published {sortBy === 'date' && (sortOrder === 'desc' ? '↓' : '↑')}
+                    </th>
                     <th>Sentiment</th>
-                    <th>Score</th>
+                    <th 
+                      onClick={() => handleSort('score')} 
+                      style={{ cursor: 'pointer', userSelect: 'none' }}
+                      title="Click to sort by score"
+                    >
+                      Score {sortBy === 'score' && (sortOrder === 'desc' ? '↓' : '↑')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedSummary.articles.map((article) => (
+                  {sortArticles(selectedSummary.articles).map((article) => (
                     <tr key={article.id}>
                       <td>
                         {article.url ? (
