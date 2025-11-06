@@ -1,0 +1,11 @@
+{
+  "name": "market-sentiment-app",
+  "version": "1.0.0",
+  "description": "Market sentiment analysis application",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "db:setup": "cd backend && npm run db:generate && npm run db:migrate"
+  }
+}
